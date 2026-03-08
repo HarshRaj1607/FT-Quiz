@@ -313,6 +313,24 @@
     opacity: 0;
   }
 
+  .secondary-badge {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid #2e2e2e;
+    padding: 5px 14px;
+    border-radius: 2px;
+    animation: fadeUp 0.6s 0.55s ease forwards;
+    opacity: 0;
+  }
+  .secondary-badge span {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
   .result-divider {
     width: 80px;
     height: 1px;
@@ -643,83 +661,111 @@ const questions = [
   {
     text: "Someone says something you strongly disagree with. Your first instinct is:",
     options: [
-      { letter: "A", text: "Immediately challenge it" },
-      { letter: "B", text: "Ask questions to understand it" },
-      { letter: "C", text: "Think silently before speaking" },
-      { letter: "D", text: "Look for logical flaws" }
+      { letter: "A", text: "Immediately challenge it",          scores: { F: 3, E: 0, P: 0, S: 1 } },
+      { letter: "B", text: "Ask questions to understand it",    scores: { F: 0, E: 3, P: 1, S: 0 } },
+      { letter: "C", text: "Think silently before speaking",    scores: { F: 0, E: 1, P: 3, S: 0 } },
+      { letter: "D", text: "Look for logical flaws",            scores: { F: 1, E: 0, P: 0, S: 3 } }
     ]
   },
   {
     text: "What sounds most satisfying to you?",
     options: [
-      { letter: "A", text: "Winning an argument" },
-      { letter: "B", text: "Understanding everyone's perspective" },
-      { letter: "C", text: "Building the most logical case" },
-      { letter: "D", text: "Saying something that changes minds" }
+      { letter: "A", text: "Winning an argument",                       scores: { F: 3, E: 0, P: 0, S: 1 } },
+      { letter: "B", text: "Understanding everyone's perspective",       scores: { F: 0, E: 3, P: 1, S: 0 } },
+      { letter: "C", text: "Building the most logical case",             scores: { F: 0, E: 0, P: 1, S: 3 } },
+      { letter: "D", text: "Saying something that changes minds",        scores: { F: 1, E: 0, P: 3, S: 0 } }
     ]
   },
   {
     text: "In a discussion, people usually see you as:",
     options: [
-      { letter: "A", text: "Passionate and bold" },
-      { letter: "B", text: "Curious and open" },
-      { letter: "C", text: "Calm and thoughtful" },
-      { letter: "D", text: "Precise and logical" }
+      { letter: "A", text: "Passionate and bold",   scores: { F: 3, E: 1, P: 0, S: 0 } },
+      { letter: "B", text: "Curious and open",      scores: { F: 0, E: 3, P: 1, S: 0 } },
+      { letter: "C", text: "Calm and thoughtful",   scores: { F: 0, E: 0, P: 3, S: 1 } },
+      { letter: "D", text: "Precise and logical",   scores: { F: 0, E: 0, P: 1, S: 3 } }
     ]
   },
   {
     text: "When a controversial topic comes up, you usually:",
     options: [
-      { letter: "A", text: "Jump into the debate" },
-      { letter: "B", text: "Explore both sides first" },
-      { letter: "C", text: "Listen carefully before speaking" },
-      { letter: "D", text: "Break down the arguments logically" }
+      { letter: "A", text: "Jump into the debate",                scores: { F: 3, E: 0, P: 0, S: 1 } },
+      { letter: "B", text: "Explore both sides first",            scores: { F: 0, E: 3, P: 1, S: 0 } },
+      { letter: "C", text: "Listen carefully before speaking",    scores: { F: 0, E: 1, P: 3, S: 0 } },
+      { letter: "D", text: "Break down the arguments logically",  scores: { F: 1, E: 0, P: 0, S: 3 } }
     ]
   },
   {
     text: "What motivates you most?",
     options: [
-      { letter: "A", text: "Competition" },
-      { letter: "B", text: "Curiosity" },
-      { letter: "C", text: "Insight" },
-      { letter: "D", text: "Truth" }
+      { letter: "A", text: "Competition", scores: { F: 3, E: 0, P: 0, S: 1 } },
+      { letter: "B", text: "Curiosity",   scores: { F: 0, E: 3, P: 1, S: 0 } },
+      { letter: "C", text: "Insight",     scores: { F: 0, E: 1, P: 3, S: 0 } },
+      { letter: "D", text: "Truth",       scores: { F: 0, E: 0, P: 1, S: 3 } }
     ]
   }
 ];
 
 const archetypes = {
-  A: {
-    icon: "🔥",
-    name: "The Firestarter",
-    sub: "BOLD · FEARLESS · ELECTRIC",
-    desc: "You thrive on bold ideas and fearless expression. When a discussion heats up, you don't step back — you step forward. Firestarters energize entire rooms, push conversations past comfortable limits, and make people feel something. You don't just participate in debates; you ignite them.",
-    tagline: "Debate needs voices like yours.",
+  F: { icon: "🔥", adj: "Fearless", label: "Firestarter", sub: "BOLD · FEARLESS · ELECTRIC" },
+  E: { icon: "🧭", adj: "Curious",  label: "Explorer",    sub: "CURIOUS · OPEN · PERCEPTIVE" },
+  P: { icon: "🧠", adj: "Wise",     label: "Philosopher", sub: "WISE · DELIBERATE · DEEP" },
+  S: { icon: "♟️", adj: "Sharp",    label: "Strategist",  sub: "SHARP · PRECISE · FORMIDABLE" }
+};
+
+const blendedDescs = {
+  F_E: {
+    desc: "You charge into a debate with real conviction — but unlike most, you actually listen. You challenge boldly, and your curiosity keeps you from being reckless. You don't just want to win; you want to understand what you're winning against. That combination makes you genuinely formidable in any room.",
+    tagline: "Fearless enough to start it. Curious enough to win it."
   },
-  B: {
-    icon: "🧭",
-    name: "The Explorer",
-    sub: "CURIOUS · OPEN · PERCEPTIVE",
-    desc: "You love understanding different perspectives before forming your own. Explorers ask the questions others miss, uncover the layers beneath surface-level arguments, and bring genuine empathy into intellectual space. Your curiosity is your superpower — it makes you the person everyone actually wants to talk to.",
-    tagline: "Great debates begin with curiosity like yours.",
+  F_P: {
+    desc: "You speak with conviction, but there's real depth behind every word. You're not just loud — you're loud about things that actually matter. Where others rush to score points, you're making a case that people feel. You bring both the heat and the meaning, which is a rarer combination than most people realize.",
+    tagline: "The fire in your voice carries real weight."
   },
-  C: {
-    icon: "🧠",
-    name: "The Philosopher",
-    sub: "WISE · DELIBERATE · DEEP",
-    desc: "You think before you speak, and when you speak, people listen. Philosophers bring clarity and depth to discussions that would otherwise stay shallow. You find meaning in complexity, ask questions that make people reconsider everything, and bring a kind of quiet confidence that commands respect.",
-    tagline: "The best debates need thinkers like you.",
+  F_S: {
+    desc: "You come in swinging — and have the logic to back every punch. Your instinct is to challenge, but underneath that boldness is a sharp, tactical mind that's already mapped the argument three moves ahead. You're not just passionate. You're precise. That's a genuinely hard combination to go up against.",
+    tagline: "Bold on the surface. Bulletproof underneath."
   },
-  D: {
-    icon: "♟️",
-    name: "The Strategist",
-    sub: "SHARP · PRECISE · FORMIDABLE",
-    desc: "You enjoy breaking down arguments and finding the cracks in logic. Strategists build airtight cases and dismantle weak ones with surgical precision. You see debates like chess — every move matters, every word is intentional. When you enter an argument, you've already thought three moves ahead.",
-    tagline: "Debate is practically built for minds like yours.",
+  E_F: {
+    desc: "You explore every angle of an argument — but when you've seen enough, you don't hold back. Your curiosity builds into conviction, and your conviction can light up a room. You ask the questions others are afraid to, then fearlessly follow where the answers lead. That's not just debating. That's thinking out loud at full volume.",
+    tagline: "Your questions are just the beginning."
+  },
+  E_P: {
+    desc: "You genuinely want to understand before you speak. You ask the questions others skip, and when you finally form a view, it's layered, considered, and hard to argue with. You bring empathy and depth into spaces that usually just have noise. People leave conversations with you thinking differently.",
+    tagline: "Great debates begin with curiosity like yours."
+  },
+  E_S: {
+    desc: "You approach every argument like a map you haven't seen yet — you explore, you probe, you find the angles others missed, then use them with precision. You're the most dangerous kind of debater: the one who actually did their homework and is genuinely interested in the answer. That combination is almost unfair.",
+    tagline: "You find the gaps everyone else walks past."
+  },
+  P_F: {
+    desc: "You think before you speak — but when you finally do, people stop to listen. There's a quiet boldness to how you engage. You don't need to shout to make an impact; your words land with weight because they come from somewhere real. Fire and wisdom in the same person is a rare thing to find.",
+    tagline: "Quiet until it matters. Unforgettable when it does."
+  },
+  P_E: {
+    desc: "You're the thinker who never stops asking why. You sit with ideas, turn them over, go deeper — your curiosity keeps pulling you further in. You don't just arrive at an answer; you understand how you got there. In a debate, that means you see the whole board, not just your own position.",
+    tagline: "The best debates need thinkers like you."
+  },
+  P_S: {
+    desc: "You're deliberate, deep, and quietly devastating. You think before you speak, but when you do, it's surgical. You don't just have a view — you've stress-tested it, found the weaknesses, and reinforced every angle. People come into debates thinking you're the quiet one. They leave having reconsidered everything.",
+    tagline: "Stillness on the outside. Precision on the inside."
+  },
+  S_F: {
+    desc: "You break arguments down like puzzles — but there's real fire behind the logic. You don't just find flaws in someone's reasoning; you go after them with energy. You can dismantle a position coldly and make it feel like a performance. Strategy and passion in the same person is a force of nature.",
+    tagline: "Debate is practically built for minds like yours."
+  },
+  S_E: {
+    desc: "You're a strategist who actually listens. You map arguments with precision, but your genuine curiosity means you're always picking up information others miss. You ask sharp questions, find the gaps, and exploit them thoughtfully. That makes you both formidable and surprisingly fair — which somehow makes you even harder to beat.",
+    tagline: "You win not by talking more, but by understanding more."
+  },
+  S_P: {
+    desc: "You're built for the long game. You break arguments down methodically, but it's your depth that sets you apart — you're not just finding flaws, you're understanding why they exist. You build airtight cases because you actually understand both sides. That kind of preparation doesn't just win rounds. It changes how people think.",
+    tagline: "Every argument you make is one they didn't see coming."
   }
 };
 
 let currentQ = 0;
 let answers = [];
+let scores = { F: 0, E: 0, P: 0, S: 0 };
 let qrGenerated = false;
 
 function startQuiz() {
@@ -746,7 +792,7 @@ function renderQuestion(animate = false) {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.innerHTML = `<div class="option-letter">${opt.letter}</div><div>${opt.text}</div>`;
-    btn.onclick = () => selectAnswer(opt.letter, btn);
+    btn.onclick = () => selectAnswer(opt.scores, btn);
     grid.appendChild(btn);
   });
 
@@ -758,11 +804,14 @@ function renderQuestion(animate = false) {
   }
 }
 
-function selectAnswer(letter, btnEl) {
+function selectAnswer(optionScores, btnEl) {
   document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
   btnEl.classList.add('selected');
   setTimeout(() => {
-    answers.push(letter);
+    // Accumulate weighted scores
+    for (const [key, val] of Object.entries(optionScores)) {
+      scores[key] += val;
+    }
     if (currentQ < questions.length - 1) {
       const area = document.getElementById('question-area');
       area.classList.add('slide-out');
@@ -777,16 +826,21 @@ function selectAnswer(letter, btnEl) {
 }
 
 function showResult() {
-  const counts = { A: 0, B: 0, C: 0, D: 0 };
-  answers.forEach(a => counts[a]++);
-  const winner = Object.entries(counts).sort((x, y) => y[1] - x[1])[0][0];
-  const arch = archetypes[winner];
+  const sorted = Object.entries(scores).sort((x, y) => y[1] - x[1]);
+  const primaryKey = sorted[0][0];
+  const secondaryKey = sorted[1][0];
+  const primary = archetypes[primaryKey];
+  const secondary = archetypes[secondaryKey];
 
-  document.getElementById('result-icon').textContent = arch.icon;
-  document.getElementById('result-name').textContent = arch.name;
-  document.getElementById('result-sub').textContent = arch.sub;
-  document.getElementById('result-desc').textContent = arch.desc;
-  document.getElementById('result-tagline').textContent = arch.tagline;
+  const hybridName = `The ${primary.adj} ${secondary.label}`;
+  const comboKey = `${primaryKey}_${secondaryKey}`;
+  const blend = blendedDescs[comboKey] || { desc: "", tagline: "" };
+
+  document.getElementById('result-icon').textContent = primary.icon;
+  document.getElementById('result-name').textContent = hybridName;
+  document.getElementById('result-sub').textContent = primary.sub;
+  document.getElementById('result-desc').textContent = blend.desc;
+  document.getElementById('result-tagline').textContent = blend.tagline;
 
   showScreen('result');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -809,6 +863,7 @@ function showResult() {
 function retake() {
   currentQ = 0;
   answers = [];
+  scores = { F: 0, E: 0, P: 0, S: 0 };
   showScreen('intro');
 }
 
