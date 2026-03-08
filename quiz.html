@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Kind of Debater would you be?</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --gold: #e8c14e;
+    --gold-dim: #b8962e;
+    --white: #f5f0e8;
+    --muted: #888;
+    --red: #d94f3d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-orb.top { width: 600px; height: 400px; background: rgba(232,193,78,0.06); top: -100px; right: -100px; }
+  .glow-orb.bot { width: 400px; height: 400px; background: rgba(217,79,61,0.05); bottom: -100px; left: -100px; }
+
+  .screen {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+  .screen.active { display: flex; }
+
+  #intro {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .badge {
+    display: inline-block;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 2px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    animation: fadeUp 0.6s 0.15s ease forwards;
+    opacity: 0;
+    max-width: 700px;
+  }
+
+  .hero-title span {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .tagline {
+    font-size: 16px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-top: 24px;
+    letter-spacing: 0.3px;
+    animation: fadeUp 0.6s 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  .divider-line {
+    width: 60px;
+    height: 2px;
+    background: var(--gold);
+    margin: 36px auto;
+    animation: scaleIn 0.6s 0.45s ease forwards;
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .start-btn {
+    background: var(--gold);
+    color: #0f0f0f;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    padding: 18px 60px;
+    cursor: pointer;
+    transition: all 0.2s;
+    animation: fadeUp 0.6s 0.6s ease forwards;
+    opacity: 0;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .start-btn:hover { background: #f5d46e; transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,193,78,0.3); }
+
+  .intro-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 48px;
+    animation: fadeUp 0.6s 0.75s ease forwards;
+    opacity: 0;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Bebas Neue'; font-size: 36px; color: var(--gold); line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+  #quiz {
+    flex-direction: column;
+    padding: 40px 24px;
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+  }
+
+  .quiz-logo {
+    font-family: 'Bebas Neue';
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: var(--gold);
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .progress-bar {
+    width: 120px;
+    height: 2px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
+  }
+
+  .question-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .q-number {
+    font-family: 'Bebas Neue';
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    margin-bottom: 16px;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 42px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 48px;
+    transition: opacity 0.3s;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 520px) {
+    .options-grid { grid-template-columns: 1fr; }
+  }
+
+  .option-btn {
+    background: var(--surface);
+    border: 1px solid #2e2e2e;
+    color: var(--white);
+    padding: 22px 24px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--gold);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+    transform-origin: bottom;
+  }
+
+  .option-btn:hover { border-color: var(--gold-dim); background: #222; transform: translateX(4px); }
+  .option-btn:hover::before { transform: scaleY(1); }
+  .option-btn.selected { border-color: var(--gold); background: rgba(232,193,78,0.08); }
+  .option-btn.selected::before { transform: scaleY(1); }
+
+  .option-letter {
+    display: inline-block;
+    font-family: 'Bebas Neue';
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .question-area.slide-out { animation: slideOut 0.35s ease forwards; }
+  .question-area.slide-in { animation: slideIn 0.35s ease forwards; }
+
+  #result {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .archetype-icon {
+    font-size: 72px;
+    margin-bottom: 16px;
+    animation: iconPop 0.8s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+    display: block;
+  }
+
+  .you-are {
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    animation: fadeUp 0.6s 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  .archetype-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(56px, 12vw, 100px);
+    font-weight: 900;
+    line-height: 0.9;
+    color: var(--gold);
+    animation: fadeUp 0.7s 0.4s ease forwards;
+    opacity: 0;
+    font-style: italic;
+  }
+
+  .archetype-sub {
+    font-family: 'Bebas Neue';
+    font-size: 18px;
+    letter-spacing: 5px;
+    color: var(--muted);
+    margin-top: 8px;
+    animation: fadeUp 0.6s 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  .result-divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 32px auto;
+    animation: scaleIn 0.6s 0.6s ease forwards;
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .archetype-desc {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #ccc;
+    font-weight: 300;
+    max-width: 520px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.7s ease forwards;
+    opacity: 0;
+  }
+
+  .archetype-tagline {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--gold);
+    margin-top: 20px;
+    animation: fadeUp 0.6s 0.85s ease forwards;
+    opacity: 0;
+  }
+
+  .cta-box {
+    margin-top: 48px;
+    border: 1px solid #2e2e2e;
+    padding: 36px 40px;
+    background: var(--surface);
+    position: relative;
+    animation: fadeUp 0.6s 1s ease forwards;
+    opacity: 0;
+    width: 100%;
+    max-width: 520px;
+  }
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 40px; right: 40px;
+    height: 2px;
+    background: var(--gold);
+  }
+
+  .cta-eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .cta-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  .cta-details {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .cta-detail { display: flex; align-items: center; gap: 8px; }
+  .cta-detail span { color: var(--white); font-weight: 500; }
+
+  /* QR Code Section */
+  .qr-section {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #2a2a2a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .qr-label {
+    font-family: 'Bebas Neue';
+    font-size: 16px;
+    letter-spacing: 4px;
+    color: var(--gold);
+  }
+
+  .qr-wrapper {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 4px;
+    display: inline-block;
+    box-shadow: 0 0 50px rgba(232,193,78,0.2), 0 0 0 1px rgba(232,193,78,0.1);
+  }
+
+  .qr-wrapper canvas,
+  .qr-wrapper img { display: block; }
+
+  .qr-sub {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .reg-btn {
+    display: inline-block;
+    background: var(--gold);
+    color: #0f0f0f;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    letter-spacing: 3px;
+    padding: 13px 40px;
+    text-decoration: none;
+    transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    font-weight: 400;
+  }
+  .reg-btn:hover { background: #f5d46e; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,193,78,0.35); }
+
+  .share-section {
+    margin-top: 32px;
+    animation: fadeUp 0.6s 1.2s ease forwards;
+    opacity: 0;
+  }
+  .share-label {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .share-btn {
+    background: transparent;
+    border: 1px solid #3a3a3a;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    margin: 0 6px;
+    border-radius: 2px;
+  }
+  .share-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .share-btn.primary { background: var(--gold); border-color: var(--gold); color: #0f0f0f; font-weight: 600; }
+  .share-btn.primary:hover { background: #f5d46e; transform: translateY(-1px); }
+
+  .retake-link {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    animation: fadeUp 0.6s 1.4s ease forwards;
+    opacity: 0;
+    display: inline-block;
+  }
+  .retake-link:hover { color: var(--white); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    to { opacity: 1; transform: scaleX(1); }
+  }
+  @keyframes iconPop {
+    from { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  @keyframes slideOut {
+    to { opacity: 0; transform: translateX(-40px); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .ticker-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 32px;
+    background: var(--gold);
+    overflow: hidden;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+  }
+  .ticker-content {
+    display: flex;
+    animation: ticker 20s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    font-family: 'Bebas Neue';
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: #0f0f0f;
+    padding: 0 40px;
+  }
+  .ticker-dot { color: rgba(0,0,0,0.3); padding: 0 8px; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .main-wrap {
+    padding-top: 32px;
+    min-height: 100vh;
+    display: flex;
+  }
+  .main-wrap > .screen { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="glow-orb top"></div>
+<div class="glow-orb bot"></div>
+
+<div class="ticker-wrap">
+  <div class="ticker-content">
+    <span class="ticker-item">Freshers Tournament</span>
+    <span class="ticker-dot">◆</span>
+    <span class="ticker-item">DISCOVER YOUR DEBATE ARCHETYPE</span>
+    <span class="ticker-dot">◆</span>
+    <span class="ticker-item">WHAT KIND OF A DEBATER WOULD YOU BE?</span>
+    <span class="ticker-dot">◆</span>
+    <span class="ticker-item">60 SECONDS TO FIND OUT</span>
+    <span class="ticker-dot">◆</span>
+    <span class="ticker-item">Freshers Tournament</span>
+    <span class="ticker-dot">◆</span>
+    <span class="ticker-item">DISCOVER YOUR DEBATE ARCHETYPE</span>
+    <span class="ticker-dot">◆</span>
+    <span class="ticker-item">WHAT KIND OF A DEBATER WOULD YOU BE?</span>
+    <span class="ticker-dot">◆</span>
+    <span class="ticker-item">60 SECONDS TO FIND OUT</span>
+    <span class="ticker-dot">◆</span>
+  </div>
+</div>
+
+<div class="main-wrap">
+
+  <!-- INTRO -->
+  <div id="intro" class="screen active">
+    <div class="badge">Freshers Tournament — Quiz</div>
+    <h1 class="hero-title">What Kind of a <span>Debater</span> Would you be?</h1>
+    <p class="tagline">Take this 60-second quiz and discover your debate archetype.</p>
+    <div class="divider-line"></div>
+    <button class="start-btn" onclick="startQuiz()">FIND OUT NOW</button>
+    <div class="intro-stats">
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Questions</div></div>
+      <div class="stat"><div class="stat-num">60</div><div class="stat-label">Seconds</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">Archetypes</div></div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="screen">
+    <div class="quiz-header">
+      <div class="quiz-logo">DEBATER TEST</div>
+      <div class="progress-wrap">
+        <span class="progress-label" id="progress-label">1 / 5</span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 20%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="question-area" id="question-area">
+      <div class="q-number" id="q-number">QUESTION 01</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options-grid" id="options-grid"></div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="screen">
+    <span class="archetype-icon" id="result-icon"></span>
+    <div class="you-are">You are</div>
+    <div class="archetype-name" id="result-name"></div>
+    <div class="archetype-sub" id="result-sub"></div>
+    <div class="result-divider"></div>
+    <p class="archetype-desc" id="result-desc"></p>
+    <p class="archetype-tagline" id="result-tagline"></p>
+
+    <div class="cta-box">
+      <div class="cta-eyebrow">Your Mind Is Built For This</div>
+      <div class="cta-headline">Come Test It At The Freshers Tournament</div>
+      <div class="cta-details">
+        <div class="cta-detail">📅 <span>14th, 15th March</span></div>
+        <div class="cta-detail">📍 <span>Online</span></div>
+      </div>
+
+      <div class="qr-section">
+        <div class="qr-label">Scan to Register</div>
+        <div class="qr-wrapper">
+          <div id="qrcode"></div>
+        </div>
+        <div class="qr-sub">or tap below</div>
+        <a class="reg-btn" href="https://forms.gle/DRTbPpN2v2YAC5K79" target="_blank">REGISTER NOW</a>
+      </div>
+    </div>
+
+    <div class="share-section">
+      <div class="share-label">Find out what your friends are →</div>
+      <button class="share-btn primary" onclick="shareQuiz()">Share This Quiz</button>
+      <button class="share-btn" onclick="copyLink()">Copy Link</button>
+    </div>
+
+    <span class="retake-link" onclick="retake()">← Retake the quiz</span>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    text: "Someone says something you strongly disagree with. Your first instinct is:",
+    options: [
+      { letter: "A", text: "Immediately challenge it" },
+      { letter: "B", text: "Ask questions to understand it" },
+      { letter: "C", text: "Think silently before speaking" },
+      { letter: "D", text: "Look for logical flaws" }
+    ]
+  },
+  {
+    text: "What sounds most satisfying to you?",
+    options: [
+      { letter: "A", text: "Winning an argument" },
+      { letter: "B", text: "Understanding everyone's perspective" },
+      { letter: "C", text: "Building the most logical case" },
+      { letter: "D", text: "Saying something that changes minds" }
+    ]
+  },
+  {
+    text: "In a discussion, people usually see you as:",
+    options: [
+      { letter: "A", text: "Passionate and bold" },
+      { letter: "B", text: "Curious and open" },
+      { letter: "C", text: "Calm and thoughtful" },
+      { letter: "D", text: "Precise and logical" }
+    ]
+  },
+  {
+    text: "When a controversial topic comes up, you usually:",
+    options: [
+      { letter: "A", text: "Jump into the debate" },
+      { letter: "B", text: "Explore both sides first" },
+      { letter: "C", text: "Listen carefully before speaking" },
+      { letter: "D", text: "Break down the arguments logically" }
+    ]
+  },
+  {
+    text: "What motivates you most?",
+    options: [
+      { letter: "A", text: "Competition" },
+      { letter: "B", text: "Curiosity" },
+      { letter: "C", text: "Insight" },
+      { letter: "D", text: "Truth" }
+    ]
+  }
+];
+
+const archetypes = {
+  A: {
+    icon: "🔥",
+    name: "The Firestarter",
+    sub: "BOLD · FEARLESS · ELECTRIC",
+    desc: "You thrive on bold ideas and fearless expression. When a discussion heats up, you don't step back — you step forward. Firestarters energize entire rooms, push conversations past comfortable limits, and make people feel something. You don't just participate in debates; you ignite them.",
+    tagline: "Debate needs voices like yours.",
+  },
+  B: {
+    icon: "🧭",
+    name: "The Explorer",
+    sub: "CURIOUS · OPEN · PERCEPTIVE",
+    desc: "You love understanding different perspectives before forming your own. Explorers ask the questions others miss, uncover the layers beneath surface-level arguments, and bring genuine empathy into intellectual space. Your curiosity is your superpower — it makes you the person everyone actually wants to talk to.",
+    tagline: "Great debates begin with curiosity like yours.",
+  },
+  C: {
+    icon: "🧠",
+    name: "The Philosopher",
+    sub: "WISE · DELIBERATE · DEEP",
+    desc: "You think before you speak, and when you speak, people listen. Philosophers bring clarity and depth to discussions that would otherwise stay shallow. You find meaning in complexity, ask questions that make people reconsider everything, and bring a kind of quiet confidence that commands respect.",
+    tagline: "The best debates need thinkers like you.",
+  },
+  D: {
+    icon: "♟️",
+    name: "The Strategist",
+    sub: "SHARP · PRECISE · FORMIDABLE",
+    desc: "You enjoy breaking down arguments and finding the cracks in logic. Strategists build airtight cases and dismantle weak ones with surgical precision. You see debates like chess — every move matters, every word is intentional. When you enter an argument, you've already thought three moves ahead.",
+    tagline: "Debate is practically built for minds like yours.",
+  }
+};
+
+let currentQ = 0;
+let answers = [];
+let qrGenerated = false;
+
+function startQuiz() {
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion(animate = false) {
+  const q = questions[currentQ];
+  const numStr = String(currentQ + 1).padStart(2, '0');
+  document.getElementById('q-number').textContent = `QUESTION ${numStr}`;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress-label').textContent = `${currentQ + 1} / ${questions.length}`;
+  document.getElementById('progress-fill').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<div class="option-letter">${opt.letter}</div><div>${opt.text}</div>`;
+    btn.onclick = () => selectAnswer(opt.letter, btn);
+    grid.appendChild(btn);
+  });
+
+  if (animate) {
+    const area = document.getElementById('question-area');
+    area.classList.remove('slide-out');
+    area.classList.add('slide-in');
+    area.addEventListener('animationend', () => area.classList.remove('slide-in'), { once: true });
+  }
+}
+
+function selectAnswer(letter, btnEl) {
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btnEl.classList.add('selected');
+  setTimeout(() => {
+    answers.push(letter);
+    if (currentQ < questions.length - 1) {
+      const area = document.getElementById('question-area');
+      area.classList.add('slide-out');
+      area.addEventListener('animationend', () => {
+        currentQ++;
+        renderQuestion(true);
+      }, { once: true });
+    } else {
+      showResult();
+    }
+  }, 400);
+}
+
+function showResult() {
+  const counts = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach(a => counts[a]++);
+  const winner = Object.entries(counts).sort((x, y) => y[1] - x[1])[0][0];
+  const arch = archetypes[winner];
+
+  document.getElementById('result-icon').textContent = arch.icon;
+  document.getElementById('result-name').textContent = arch.name;
+  document.getElementById('result-sub').textContent = arch.sub;
+  document.getElementById('result-desc').textContent = arch.desc;
+  document.getElementById('result-tagline').textContent = arch.tagline;
+
+  showScreen('result');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (!qrGenerated) {
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, {
+      text: "https://forms.gle/DRTbPpN2v2YAC5K79",
+      width: 190,
+      height: 190,
+      colorDark: "#0f0f0f",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    qrGenerated = true;
+  }
+}
+
+function retake() {
+  currentQ = 0;
+  answers = [];
+  showScreen('intro');
+}
+
+function shareQuiz() {
+  if (navigator.share) {
+    navigator.share({ title: "What Kind of a debater would you be?", text: "Take this debate quiz and discover your archetype!", url: window.location.href });
+  } else {
+    copyLink();
+  }
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = document.querySelector('.share-btn:not(.primary)');
+    btn.textContent = 'Copied! ✓';
+    setTimeout(() => btn.textContent = 'Copy Link', 2000);
+  });
+}
+</script>
+</body>
+</html>
